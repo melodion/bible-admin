@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         APP_NAME = "bible-admin"
-        IMAGE_NAME = "bible-admin:1.0"
+        IMAGE_NAME = "bible-admin"
     }
 
     options {
