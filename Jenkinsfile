@@ -20,10 +20,18 @@ pipeline {
             }
         }
 
+        stage('Unit Test') {
+            steps {
+                sh '''
+                  mvn clean test -Pprod
+                '''
+            }
+        }
+
         stage('Build Maven') {
             steps {
                 sh '''
-                  mvn clean verify -Pprod -DskipTests
+                  mvn clean package -Pprod -DskipTests
                 '''
             }
         }
