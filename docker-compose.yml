@@ -26,9 +26,7 @@ services:
         condition: service_healthy
 
   bibleadmin-mysql:
-    image: mysql:8.0
-    container_name: bibleadmin-mysql
-    restart: always
+    image: mysql:9.2.0
     volumes:
       - mysql_data:/var/lib/mysql
       - ./config/mysql:/etc/mysql/conf.d
