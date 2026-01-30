@@ -14,6 +14,7 @@ pipeline {
     stages {
 
         stage('Checkout') {
+        agent any
             steps {
                 checkout scm
             }
@@ -35,7 +36,7 @@ pipeline {
             }
         }
 
-        stage('Deploy Production') {
+        stage('Deploy Image') {
             steps {
                 sh '''
                   docker compose down
