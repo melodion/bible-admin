@@ -37,6 +37,12 @@ pipeline {
         }
 
         stage('Deploy Image') {
+            environment {
+                MYSQL_DATABASE = credentials('mysql-database')
+                MYSQL_USER = credentials('mysql-user')
+                MYSQL_PASSWORD = credentials('mysql-password')
+                MYSQL_ROOT_PASSWORD = credentials('mysql-root-password')
+            }
             steps {
                 sh '''
                   docker compose down

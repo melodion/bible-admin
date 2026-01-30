@@ -1,40 +1,53 @@
+version: '3.8'
+
 services:
   bibleadmin:
     image: bibleadmin
+    container_name: bibleadmin-app
+    restart: always
     environment:
-      - _JAVA_OPTIONS=-Xmx512m -Xms256m
-      - SPRING_PROFILES_ACTIVE=prod,api-docs
-      - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
-      - SPRING_R2DBC_URL=r2dbc:mysql://bibleadmin-mysql:3306/bibleadmin?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
-      - SPRING_LIQUIBASE_URL=jdbc:mysql://bibleadmin-mysql:3306/bibleadmin?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
+      _JAVA_OPTIONS: -Xmx512m -Xms256m
+      SPRING_PROFILES_ACTIVE: prod,api-docs
+
+      SPRING_R2DBC_URL: r2dbc:mysql://bibleadmin-mysql:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&useSSL=false
+      SPRING_R2DBC_USERNAME: ${MYSQL_USER}
+      SPRING_R2DBC_PASSWORD: ${MYSQL_PASSWORD}
+
+      SPRING_LIQUIBASE_URL: jdbc:mysql://bibleadmin-mysql:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&useSSL=false
+      SPRING_LIQUIBASE_USER: ${MYSQL_USER}
+      SPRING_LIQUIBASE_PASSWORD: ${MYSQL_PASSWORD}
+
+      MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED: 'true'
+
     ports:
-      - 8085:8085
-    healthcheck:
-      test:
-        - CMD
-        - curl
-        - -f
-        - http://localhost:8080/management/health
-      interval: 5s
-      timeout: 5s
-      retries: 40
+      - '8085:8085'
     depends_on:
       bibleadmin-mysql:
         condition: service_healthy
+
   bibleadmin-mysql:
-    image: mysql:9.2.0
+    image: mysql:8.0
+    container_name: bibleadmin-mysql
+    restart: always
     volumes:
+      - mysql_data:/var/lib/mysql
       - ./config/mysql:/etc/mysql/conf.d
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE=bibleadmin
-    ports:
-      - 3306:3306
-    command: mysqld --lower_case_table_names=1 --skip-mysqlx --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command: >
+      mysqld
+      --lower_case_table_names=1
+      --skip-mysqlx
+      --character_set_server=utf8mb4
+      --explicit_defaults_for_timestamp
     healthcheck:
-      test:
-        - CMD-SHELL
-        - mysql -e "SHOW DATABASES;" && sleep 5
+      test: ['CMD-SHELL', "mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e 'SELECT 1'"]
       interval: 5s
       timeout: 10s
       retries: 10
+
+volumes:
+  mysql_data:
