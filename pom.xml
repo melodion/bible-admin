@@ -1159,4 +1159,15 @@
             </build>
         </profile>
     </profiles>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>bible</id>
+            <url>http://localhost:3000</url>
+        </snapshotRepository>
+        <repository>
+            <id>release</id>
+            <url>http://localhost:3000</url>
+        </repository>
+    </distributionManagement>
 </project>
